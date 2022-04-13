@@ -1,8 +1,8 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
-const { mapDBToModel } = require('../../utils');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const { mapDBToModel } = require('../../utils');
 
 class NotesService {
   constructor() {
@@ -28,18 +28,18 @@ class NotesService {
     return result.rows[0].id;
   }
 
-  // GET note
   async getNotes() {
     const result = await this._pool.query('SELECT * FROM notes');
+
     return result.rows.map(mapDBToModel);
   }
 
-  // GET by id
   async getNoteById(id) {
     const query = {
       text: 'SELECT * FROM notes WHERE id = $1',
       values: [id],
     };
+
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
@@ -49,7 +49,6 @@ class NotesService {
     return result.rows.map(mapDBToModel)[0];
   }
 
-  // PUT (edit)
   async editNoteById(id, { title, body, tags }) {
     const updatedAt = new Date().toISOString();
     const query = {
@@ -64,7 +63,6 @@ class NotesService {
     }
   }
 
-  // DELETE
   async deleteNoteById(id) {
     const query = {
       text: 'DELETE FROM notes WHERE id = $1 RETURNING id',
@@ -72,6 +70,7 @@ class NotesService {
     };
 
     const result = await this._pool.query(query);
+
     if (!result.rows.length) {
       throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan');
     }
